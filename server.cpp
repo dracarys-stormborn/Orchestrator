@@ -9,37 +9,75 @@
 #include "Poco/Net/HTTPServerRequest.h"
 #include "Poco/Net/HTTPServerResponse.h"
 #include "Poco/Util/ServerApplication.h"
+#include "Poco/URI.h"
+#include "server.h"
 
 using namespace Poco::Net;
 using namespace Poco::Util;
+using namespace Poco;
 using namespace std;
 
-class MyRequestHandler : public HTTPRequestHandler
+typedef vector < pair < string, string > > QueryParameters;
+class MyRequestHandler;
+int VirtualMachineRequestHandler::count = 0;
+int ResourceServiceRequestHandler::count = 0;
+int ImageServiceRequestHandler::count = 0;
+
+void VirtualMachineRequestHandler::handleVMCreationRequest(HTTPServerRequest &req, HTTPServerResponse &resp)
 {
-    public:
-	virtual void handleRequest(HTTPServerRequest &req, HTTPServerResponse &resp)
-	{
-	    resp.setStatus(HTTPResponse::HTTP_OK);
-	    resp.setContentType("text/html");
+	ostream &out = resp.send();
+	out << "<h3> Number Of Virtual Machine related Requests : " << count << " </h3>" << endl;
+	out << "Create Request Processed" << endl;
+}
 
-	    ostream& out = resp.send();
-	    out << "<h1>Hello world!</h1>"
-		<< "<p>Count: "  << ++count         << "</p>"
-		<< "<p>Host: "   << req.getHost()   << "</p>"
-		<< "<p>Method: " << req.getMethod() << "</p>"
-		<< "<p>URI: "    << req.getURI()    << "</p>";
-	    out.flush();
+void VirtualMachineRequestHandler::handleVMTypesRequest(HTTPServerRequest &req, HTTPServerResponse &resp)
+{
+	ostream &out = resp.send();
+	out << "<h3> Number Of Virtual Machine related Requests : " << count << " </h3>" << endl;
+	out << "Types Request Processed" << endl;
+}
 
-	    cout << endl
-		<< "Response sent for count=" << count
-		<< " and URI=" << req.getURI() << endl;
-	}
+void VirtualMachineRequestHandler::handleVMQueryRequest(HTTPServerRequest &req, HTTPServerResponse &resp)
+{
+	ostream &out = resp.send();
+	out << "<h3> Number Of Virtual Machine related Requests : " << count << " </h3>" << endl;
+	out << "Query Request Processed" << endl;
+}
 
-    private:
-	static int count;
-};
+void VirtualMachineRequestHandler::handleVMDestroyRequest(HTTPServerRequest &req, HTTPServerResponse &resp)
+{
+	ostream &out = resp.send();
+	out << "<h3> Number Of Virtual Machine related Requests : " << count << " </h3>" << endl;
+	out << "Destroy Request Processed" << endl;
+}
 
-int MyRequestHandler::count = 0;
+void ResourceServiceRequestHandler::handlePMListRequest(HTTPServerRequest &req, HTTPServerResponse &resp)
+{
+	ostream &out = resp.send();
+	out << "<h3> Number Of Resource Service related Requests : " << count << " </h3>" << endl;
+	out << "Physical Machine's List Request Processed" << endl;
+}
+
+void ResourceServiceRequestHandler::handleVMListRequest(HTTPServerRequest &req, HTTPServerResponse &resp)
+{
+	ostream &out = resp.send();
+	out << "<h3> Number Of Resource Service related Requests : " << count << " </h3>" << endl;
+	out << "Virtual Machine's List Request Processed" << endl;
+}
+
+void ResourceServiceRequestHandler::handlePMQueryRequest(HTTPServerRequest &req, HTTPServerResponse &resp)
+{
+	ostream &out = resp.send();
+	out << "<h3> Number Of Resource Service related Requests : " << count << " </h3>" << endl;
+	out << "Physical Machine Query Request Processed" << endl;
+}
+
+void ImageServiceRequestHandler::handleImageListRequest(HTTPServerRequest &req, HTTPServerResponse &resp)
+{
+	ostream &out = resp.send();
+	out << "<h3> Number Of Image Service related Requests : " << count << " </h3>" << endl;
+	out << "Image List Request Processed" << endl;
+}
 
 class MyRequestHandlerFactory : public HTTPRequestHandlerFactory
 {
