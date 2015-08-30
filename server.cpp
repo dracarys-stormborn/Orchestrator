@@ -11,6 +11,9 @@
 #include "Poco/Util/ServerApplication.h"
 #include "Poco/URI.h"
 #include "server.h"
+#include "virtualMachineApi.h"
+#include "resourceServiceApi.h"
+#include "imageServiceApi.h"
 
 using namespace Poco::Net;
 using namespace Poco::Util;
@@ -25,9 +28,32 @@ int ImageServiceRequestHandler::count = 0;
 
 void VirtualMachineRequestHandler::handleVMCreationRequest(HTTPServerRequest &req, HTTPServerResponse &resp)
 {
+	QueryParameters q;
+	VirtualMachineFactory v;
+	URI u = URI(req.getURI());
+	q = u.getQueryParameters();
+	resp.setContentType("text/html");
 	ostream &out = resp.send();
 	out << "<h3> Number Of Virtual Machine related Requests : " << count << " </h3>" << endl;
-	out << "Create Request Processed" << endl;
+	string name;
+	int type, image, pm = 1;
+	for(int i = 0; i < q.size(); i++)
+	{
+	    if(q[i].first.compare("name") == 0) {
+		name = q[i].second;
+	    }
+	    else if(q[i].first.compare("instance_type") == 0) {
+		type = stoi(q[i].second);
+	    }
+	    else {
+		image = stoi(q[i].second);
+	    }
+	}
+	int ret = v.createVirtualMachine(name, type, pm, image);
+	if(ret)
+	    out << "<h3> Create Request Processed </h3>" << endl;
+	else
+	    out << "<h3> Create Request Failed </h3>" << endl;
 }
 
 void VirtualMachineRequestHandler::handleVMTypesRequest(HTTPServerRequest &req, HTTPServerResponse &resp)

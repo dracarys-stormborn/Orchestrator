@@ -26,11 +26,9 @@ class VirtualMachineRequestHandler : public HTTPRequestHandler
 	    ++count;
 	    resp.setStatus(HTTPResponse::HTTP_OK);
 
-	    QueryParameters q;
 	    vector<string> v;
 	    URI u = URI(req.getURI());
 	    u.getPathSegments(v);
-	    q = u.getQueryParameters();
 
 	    if(v[1].compare("create") == 0) {
 		handleVMCreationRequest(req, resp);
@@ -63,11 +61,9 @@ class ResourceServiceRequestHandler : public HTTPRequestHandler
 	    ++count;
 	    resp.setStatus(HTTPResponse::HTTP_OK);
 
-	    QueryParameters q;
 	    vector<string> v;
 	    URI u = URI(req.getURI());
 	    u.getPathSegments(v);
-	    q = u.getQueryParameters();
 
 	    if(v[1].compare("list") == 0) {
 		handlePMListRequest(req, resp);
@@ -96,11 +92,9 @@ class ImageServiceRequestHandler : public HTTPRequestHandler
 	    ++count;
 	    resp.setStatus(HTTPResponse::HTTP_OK);
 
-	    QueryParameters q;
 	    vector<string> v;
 	    URI u = URI(req.getURI());
 	    u.getPathSegments(v);
-	    q = u.getQueryParameters();
 
 	    if(v[1].compare("list") == 0) {
 		handleImageListRequest(req, resp);

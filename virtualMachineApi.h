@@ -17,6 +17,7 @@ class VirtualMachine
 	const int getType() const;
 	const int getId() const;
 	const int getpmid() const;
+	const int getImgId() const;
 
 	void setName(const string &name);
 	void setType(const int &type);
@@ -28,6 +29,7 @@ class VirtualMachine
 	string vmname;
 	int vmtype, vmid, pmid, imageid;
 
+    public:
 	static int nvms;
 	static int test;
 };
@@ -44,18 +46,26 @@ class VirtualMachineFactory
 	    RAM ram;
 	    int disk;
 	}VM;
-	static const VM arr[] = {{1, SINGLE_CORE, LEVEL1, 1}, 
-	    {2, DUAL_CORE, LEVEL2, 2}, {3, QUAD_CORE, LEVEL3, 3}};
-	vector<VM> typesOfVMs(arr, arr + sizeof(arr) / sizeof(arr[0]));
-    
+	vector<VM> typesOfVMs;
+
+    private:
+	vector<VirtualMachine> v;
+
     public:
+	VirtualMachineFactory() {
+	    for(int i = 1; i < 4; i++) {
+		VM v;
+		v.tid = i;
+		v.cpu = ((i == 1) ? SINGLE_CORE : ((i == 2) ? DUAL_CORE : QUAD_CORE));
+		v.ram = ((i == 1) ? LEVEL1 : ((i == 2) ? LEVEL2 : LEVEL3));
+		v.disk = i;
+		typesOfVMs.push_back(v);
+	    }
+	}
 	int createVirtualMachine(const string &name, const int &type, const int &pmid, const int &imageid);
 	bool destroyVirtualMachine();
 	void queryVirtualMachineList();
 	void getVirtualMachineTypes();
-
-    private:
-	vector<VirtualMachine> v;
 };
 
 #endif
