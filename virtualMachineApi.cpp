@@ -56,7 +56,6 @@ void VirtualMachine::setImgId(const int &id)
 
 int VirtualMachineFactory::createVirtualMachine(const int imgid)
 {
-    VM v = typesOfVMs[type - 1];
+    VM v = typesOfVMs[vmtype - 1];
     imageid = imgid;
-
 }
