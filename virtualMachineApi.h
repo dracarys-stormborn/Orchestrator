@@ -46,7 +46,6 @@ class VirtualMachineFactory
 	    RAM ram;
 	    int disk;
 	}VM;
-	vector<VM> typesOfVMs;
 
     private:
 	vector<VirtualMachine> v;
@@ -62,10 +61,12 @@ class VirtualMachineFactory
 		typesOfVMs.push_back(v);
 	    }
 	}
-	int createVirtualMachine(const string &name, const int &type, const int &pmid, const int &imageid);
+	int createVirtualMachine(const string &name, const int &type, map<string, int> pm, const int &imageid);
 	bool destroyVirtualMachine();
 	void queryVirtualMachineList();
 	void getVirtualMachineTypes();
+
+	vector<VM> typesOfVMs;
 };
 
 #endif

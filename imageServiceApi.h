@@ -16,14 +16,16 @@ class OperatingSystem
 	string imgname;
 	int osid;
 
+    public:
 	static int nimgs;
 };
 
 class OperatingSystemFactory
 {
     public:
-	void createImageList(const string &file);
+	void createImageList(string file);
 	vector<string> getImageList() const;
+	vector<string> getImagePathList() const;
 
     private:
 	vector<string> img;

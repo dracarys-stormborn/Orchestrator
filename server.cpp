@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <map>
 #include "Poco/Net/ServerSocket.h"
 #include "Poco/Net/HTTPServer.h"
 #include "Poco/Net/HTTPRequestHandler.h"
@@ -14,6 +15,7 @@
 #include "virtualMachineApi.h"
 #include "resourceServiceApi.h"
 #include "imageServiceApi.h"
+#include "api.h"
 
 using namespace Poco::Net;
 using namespace Poco::Util;
@@ -26,17 +28,25 @@ int VirtualMachineRequestHandler::count = 0;
 int ResourceServiceRequestHandler::count = 0;
 int ImageServiceRequestHandler::count = 0;
 
+static const int debug = 1;
+
+VirtualMachineFactory _vm;
+PhysicalMachineFactory _pm;
+OperatingSystemFactory _os;
+
 void VirtualMachineRequestHandler::handleVMCreationRequest(HTTPServerRequest &req, HTTPServerResponse &resp)
 {
 	QueryParameters q;
-	VirtualMachineFactory v;
+	string name, pm;
+	int type, image, ret;
+
 	URI u = URI(req.getURI());
 	q = u.getQueryParameters();
 	resp.setContentType("text/html");
+
 	ostream &out = resp.send();
 	out << "<h3> Number Of Virtual Machine related Requests : " << count << " </h3>" << endl;
-	string name;
-	int type, image, pm = 1;
+
 	for(int i = 0; i < q.size(); i++)
 	{
 	    if(q[i].first.compare("name") == 0) {
@@ -49,11 +59,14 @@ void VirtualMachineRequestHandler::handleVMCreationRequest(HTTPServerRequest &re
 		image = stoi(q[i].second);
 	    }
 	}
-	int ret = v.createVirtualMachine(name, type, pm, image);
-	if(ret)
+	ret = _vm.createVirtualMachine(name, type, _pm.getList(), image);
+	if(ret) {
 	    out << "<h3> Create Request Processed </h3>" << endl;
-	else
+	}
+	else {
 	    out << "<h3> Create Request Failed </h3>" << endl;
+	}
+	out.flush();
 }
 
 void VirtualMachineRequestHandler::handleVMTypesRequest(HTTPServerRequest &req, HTTPServerResponse &resp)
@@ -133,8 +146,19 @@ class MyServerApp : public ServerApplication
 	}
 };
 
-int main(int argc, char** argv)
+int main(int argc, char* argv[])
 {
     MyServerApp app;
+    _pm.getPhysicalMachineIPs(argv[1]);
+    _os.createImageList(argv[2]);
+    if(debug)
+    {
+	map<string, int> a = _pm.getList();
+	vector<string> b = _os.getImageList();
+	for(map<string, int>::iterator i = a.begin(); i != a.end(); i++)
+	    cout << i->first << endl;
+	for(int i = 0; i < b.size(); i++)
+	    cout << b[i] << endl;
+    }
     return app.run(argc, argv);
 }

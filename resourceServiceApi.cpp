@@ -1,6 +1,8 @@
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
+#include <map>
 
 #include "resourceServiceApi.h"
 
@@ -11,8 +13,8 @@ int PhysicalMachine::npms = 0;
 PhysicalMachine::PhysicalMachine(const int ncpu, const int ram, const int disk) : cpu(ncpu), ram(ram), disk(disk)
 {
     freeCpu = cpu;
-    freeRAM = ram;
-    freeMemBlocks = disk;
+    freeRam = ram;
+    freeDisk = disk;
     pmid = ++npms;
 }
 
@@ -56,22 +58,28 @@ vector<VirtualMachine> PhysicalMachine::getVMList() const
     return vms;
 }
 
-int PhysicalMachineFactory::getPhysicalMachineIPs(const string &file)
+int PhysicalMachineFactory::getPhysicalMachineIPs(string file)
 {
     ifstream f(file);
     string line;
+    static int id = 0;
     if(f.is_open())
     {
 	while(getline(f, line)) {
 	    size_t firstScan = line.find_first_not_of(' ');
-	    size_t first     = firstScan == std::string::npos ? line.length() : firstScan;
+	    size_t first     = firstScan == string::npos ? line.length() : firstScan;
 	    size_t last      = line.find_last_not_of(' ');
 	    line = line.substr(first, last-first+1);
-	    p.push_back(line);
+	    p[line] = ++id;
 	}
     }
     else
     {
 	/* Handle the error : file mentioned cannot be opened */
     }
+}
+
+map<string, int> PhysicalMachineFactory::getList() const
+{
+    return p;
 }

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <map>
 
 #include "virtualMachineApi.h"
 
@@ -29,17 +30,19 @@ class PhysicalMachine
 	int pmid;
 	vector<VirtualMachine> vms;
 
-	const int npms;
+	static int npms;
 };
 
 class PhysicalMachineFactory
 {
     public:
-	int getPhysicalMachineIPs(const string &file);
-	vector<PhysicalMachine> getPMList() const;
+	int getPhysicalMachineIPs(string file);
+	vector<PhysicalMachine> getPhysicalMachineList() const;
+	map<string, int> getList() const;
 
     private:
-	vector<string> p;
+	map<string, int> p;
+	vector<PhysicalMachine> pms;
 };
 
 #endif
