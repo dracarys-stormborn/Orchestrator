@@ -22,25 +22,26 @@ IMG_HDR = imageServiceApi.h
 API_OBJ = api.o
 API_SRC = api.cpp
 API_HDR = api.h
+TYPES_HDR = types.h
 
 OBJS = $(SERVER_OBJ) $(VM_OBJ) $(PM_OBJ) $(IMG_OBJ) $(API_OBJ)
 
 orchestrator: $(OBJS)
 	$(CXX) $(CXXFLAGS) -o orchestrator $(OBJS) $(LDFLAGS)
 
-$(SERVER_OBJ): $(SERVER_SRC) $(SERVER_HDR) $(VM_HDR) $(PM_HDR) $(IMG_HDR) $(API_HDR)
+$(SERVER_OBJ): $(SERVER_SRC) $(SERVER_HDR) $(VM_HDR) $(PM_HDR) $(IMG_HDR) $(API_HDR) $(TYPES_HDR)
 	$(CXX) $(CXXFLAGS) -c $(SERVER_SRC) $(LDFLAGS)
 
-$(VM_OBJ): $(VM_SRC) $(VM_HDR) $(API_HDR)
+$(VM_OBJ): $(VM_SRC) $(VM_HDR) $(API_HDR) $(TYPES_HDR)
 	$(CXX) $(CXXFLAGS) -c $(VM_SRC)
 
-$(PM_OBJ): $(PM_SRC) $(PM_HDR) $(VM_HDR)
+$(PM_OBJ): $(PM_SRC) $(PM_HDR) $(VM_HDR) $(TYPES_HDR)
 	$(CXX) $(CXXFLAGS) -c $(PM_SRC)
 
-$(IMG_OBJ): $(IMG_SRC) $(IMG_HDR)
+$(IMG_OBJ): $(IMG_SRC) $(IMG_HDR) $(TYPES_HDR)
 	$(CXX) $(CXXFLAGS) -c $(IMG_SRC)
 
-$(API_OBJ): $(API_SRC) $(API_HDR) $(PM_HDR)
+$(API_OBJ): $(API_SRC) $(API_HDR) $(PM_HDR) $(TYPES_HDR)
 	$(CXX) $(CXXFLAGS) -c $(API_SRC)
 
 clean:

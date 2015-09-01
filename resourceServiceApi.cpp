@@ -70,7 +70,7 @@ int PhysicalMachineFactory::getPhysicalMachineIPs(string file)
 	    size_t first     = firstScan == string::npos ? line.length() : firstScan;
 	    size_t last      = line.find_last_not_of(' ');
 	    line = line.substr(first, last-first+1);
-	    p[line] = ++id;
+	    p[line] = id++;
 	}
     }
     else

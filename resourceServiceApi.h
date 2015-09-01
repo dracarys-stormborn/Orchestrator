@@ -7,6 +7,7 @@
 #include <map>
 
 #include "virtualMachineApi.h"
+#include "types.h"
 
 using namespace std;
 
@@ -22,13 +23,13 @@ class PhysicalMachine
 	const int getMaxRAM() const;
 	const int getMaxMemBlocks() const;
 	const int getId() const;
-	vector<VirtualMachine> getVMList() const;
+	VMList getVMList() const;
 
     private:
 	int freeCpu, freeRam, freeDisk;
 	int cpu, ram, disk;
 	int pmid;
-	vector<VirtualMachine> vms;
+	VMList vms;
 
 	static int npms;
 };
@@ -37,12 +38,12 @@ class PhysicalMachineFactory
 {
     public:
 	int getPhysicalMachineIPs(string file);
-	vector<PhysicalMachine> getPhysicalMachineList() const;
+	PMList getPhysicalMachineList() const;
 	map<string, int> getList() const;
 
     private:
 	map<string, int> p;
-	vector<PhysicalMachine> pms;
+	PMList pms;
 };
 
 #endif

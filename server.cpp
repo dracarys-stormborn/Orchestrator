@@ -16,13 +16,13 @@
 #include "resourceServiceApi.h"
 #include "imageServiceApi.h"
 #include "api.h"
+#include "types.h"
 
 using namespace Poco::Net;
 using namespace Poco::Util;
 using namespace Poco;
 using namespace std;
 
-typedef vector < pair < string, string > > QueryParameters;
 class MyRequestHandler;
 int VirtualMachineRequestHandler::count = 0;
 int ResourceServiceRequestHandler::count = 0;
@@ -36,86 +36,118 @@ OperatingSystemFactory _os;
 
 void VirtualMachineRequestHandler::handleVMCreationRequest(HTTPServerRequest &req, HTTPServerResponse &resp)
 {
-	QueryParameters q;
-	string name, pm;
-	int type, image, ret;
+    QueryParameters q;
+    string name, pm, result;
+    vector<string> imgPathList;
+    int type, image, ret;
+    JSONContainer status;
+    JSONHandler js;
 
-	URI u = URI(req.getURI());
-	q = u.getQueryParameters();
-	resp.setContentType("text/html");
+    URI u = URI(req.getURI());
+    q = u.getQueryParameters();
+    resp.setContentType("application/json");
 
-	ostream &out = resp.send();
-	out << "<h3> Number Of Virtual Machine related Requests : " << count << " </h3>" << endl;
+    ostream &out = resp.send();
+    status.push_back(vector<pair<string, string> >());
 
-	for(int i = 0; i < q.size(); i++)
-	{
-	    if(q[i].first.compare("name") == 0) {
-		name = q[i].second;
-	    }
-	    else if(q[i].first.compare("instance_type") == 0) {
-		type = stoi(q[i].second);
-	    }
-	    else {
-		image = stoi(q[i].second);
-	    }
+    for(int i = 0; i < q.size(); i++)
+    {
+	if(q[i].first.compare("name") == 0) {
+	    name = q[i].second;
 	}
-	ret = _vm.createVirtualMachine(name, type, _pm.getList(), image);
-	if(ret) {
-	    out << "<h3> Create Request Processed </h3>" << endl;
+	else if(q[i].first.compare("instance_type") == 0) {
+	    type = stoi(q[i].second);
 	}
 	else {
-	    out << "<h3> Create Request Failed </h3>" << endl;
+	    image = stoi(q[i].second);
 	}
-	out.flush();
+    }
+
+    imgPathList = _os.getImagePathList();
+    ret = _vm.createVirtualMachine(name, type, _pm.getList(), image, imgPathList[image - 1]);
+    if(ret) {
+	status[0].push_back(make_pair("vmid", to_string(ret)));
+	js.jsonify(result, status);
+	out << result;
+    }
+    else {
+	status[0].push_back(make_pair("vmid", "0"));
+	js.jsonify(result, status);
+	out << result;
+    }
+    out.flush();
 }
 
 void VirtualMachineRequestHandler::handleVMTypesRequest(HTTPServerRequest &req, HTTPServerResponse &resp)
 {
-	ostream &out = resp.send();
-	out << "<h3> Number Of Virtual Machine related Requests : " << count << " </h3>" << endl;
-	out << "Types Request Processed" << endl;
+    ostream &out = resp.send();
+    out << "<h3> Number Of Virtual Machine related Requests : " << count << " </h3>" << endl;
+    out << "Types Request Processed" << endl;
 }
 
 void VirtualMachineRequestHandler::handleVMQueryRequest(HTTPServerRequest &req, HTTPServerResponse &resp)
 {
-	ostream &out = resp.send();
-	out << "<h3> Number Of Virtual Machine related Requests : " << count << " </h3>" << endl;
-	out << "Query Request Processed" << endl;
+    QueryParameters q;
+    string result;
+    int vmid;
+    bool done = false;
+    JSONContainer status;
+    JSONHandler js;
+
+    URI u = URI(req.getURI());
+    q = u.getQueryParameters();
+    resp.setContentType("application/json");
+    status.push_back(vector<pair<string, string> >());
+
+    ostream &out = resp.send();
+    vmid = stoi(q[0].second);
+    done = _vm.queryVirtualMachineList(vmid, result);
+    if(done)
+    {
+	out << result;
+    }
+    else
+    {
+	status[0].push_back(make_pair("status", "VMID is invalid. Please enter a valid vmid in the query"));
+	js.jsonify(result, status);
+	out << result;
+    }
+    out.flush();
 }
 
 void VirtualMachineRequestHandler::handleVMDestroyRequest(HTTPServerRequest &req, HTTPServerResponse &resp)
 {
-	ostream &out = resp.send();
-	out << "<h3> Number Of Virtual Machine related Requests : " << count << " </h3>" << endl;
-	out << "Destroy Request Processed" << endl;
+    ostream &out = resp.send();
+    out << "<h3> Number Of Virtual Machine related Requests : " << count << " </h3>" << endl;
+    out << "Destroy Request Processed" << endl;
 }
 
 void ResourceServiceRequestHandler::handlePMListRequest(HTTPServerRequest &req, HTTPServerResponse &resp)
 {
-	ostream &out = resp.send();
-	out << "<h3> Number Of Resource Service related Requests : " << count << " </h3>" << endl;
-	out << "Physical Machine's List Request Processed" << endl;
+    ostream &out = resp.send();
+    out << "<h3> Number Of Resource Service related Requests : " << count << " </h3>" << endl;
+    out << "Physical Machine's List Request Processed" << endl;
 }
 
 void ResourceServiceRequestHandler::handleVMListRequest(HTTPServerRequest &req, HTTPServerResponse &resp)
 {
-	ostream &out = resp.send();
-	out << "<h3> Number Of Resource Service related Requests : " << count << " </h3>" << endl;
-	out << "Virtual Machine's List Request Processed" << endl;
+    ostream &out = resp.send();
+    out << "<h3> Number Of Resource Service related Requests : " << count << " </h3>" << endl;
+    out << "Virtual Machine's List Request Processed" << endl;
 }
 
 void ResourceServiceRequestHandler::handlePMQueryRequest(HTTPServerRequest &req, HTTPServerResponse &resp)
 {
-	ostream &out = resp.send();
-	out << "<h3> Number Of Resource Service related Requests : " << count << " </h3>" << endl;
-	out << "Physical Machine Query Request Processed" << endl;
+    ostream &out = resp.send();
+    out << "<h3> Number Of Resource Service related Requests : " << count << " </h3>" << endl;
+    out << "Physical Machine Query Request Processed" << endl;
 }
 
 void ImageServiceRequestHandler::handleImageListRequest(HTTPServerRequest &req, HTTPServerResponse &resp)
 {
-	ostream &out = resp.send();
-	out << "<h3> Number Of Image Service related Requests : " << count << " </h3>" << endl;
-	out << "Image List Request Processed" << endl;
+    ostream &out = resp.send();
+    out << "<h3> Number Of Image Service related Requests : " << count << " </h3>" << endl;
+    out << "Image List Request Processed" << endl;
 }
 
 class MyRequestHandlerFactory : public HTTPRequestHandlerFactory

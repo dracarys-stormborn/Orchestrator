@@ -7,6 +7,8 @@
 #include <set>
 #include <map>
 
+#include "types.h"
+
 using namespace std;
 
 class Scheduler
@@ -21,7 +23,7 @@ class Scheduler
     public:
 	void initializeSchedulingInfo() {}
 	void updateSchedulingInfo() {}
-	string getPhysicalMachineAddress(int _cpu, int _ram, int _disk) const;
+	string getPhysicalMachineAddress(int _cpu, int _ram, int _disk);
 
 	static int markedPM;
 };
@@ -37,6 +39,24 @@ class System
 	string freeRAMInfo = " free -k | grep 'Mem:' | awk '{ print $4 }'";
 	string freeCPUInfo = " grep processor /proc/cpuinfo | wc -l";
 	string SSH = "ssh";
+};
+
+
+class JSONHandler
+{
+    public:
+	JSONHandler() {}
+
+	void jsonify(string &out, vector<vector<pair<string, string> > > nameValuePair);
+};
+
+class XMLHandler
+{
+    public:
+	XMLHandler() {}
+
+    public:
+	void getDomainXML(string &xml, vector<string> args);
 };
 
 #endif

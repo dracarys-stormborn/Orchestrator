@@ -10,13 +10,12 @@
 #include "Poco/Net/HTTPServerResponse.h"
 #include "Poco/Util/ServerApplication.h"
 #include "Poco/URI.h"
+#include "types.h"
 
 using namespace Poco::Net;
 using namespace Poco::Util;
 using namespace Poco;
 using namespace std;
-
-typedef vector < pair < string, string > > QueryParameters;
 
 class VirtualMachineRequestHandler : public HTTPRequestHandler
 {
@@ -27,6 +26,7 @@ class VirtualMachineRequestHandler : public HTTPRequestHandler
 	    resp.setStatus(HTTPResponse::HTTP_OK);
 
 	    vector<string> v;
+	    v.clear();
 	    URI u = URI(req.getURI());
 	    u.getPathSegments(v);
 
@@ -62,6 +62,7 @@ class ResourceServiceRequestHandler : public HTTPRequestHandler
 	    resp.setStatus(HTTPResponse::HTTP_OK);
 
 	    vector<string> v;
+	    v.clear();
 	    URI u = URI(req.getURI());
 	    u.getPathSegments(v);
 
@@ -93,6 +94,7 @@ class ImageServiceRequestHandler : public HTTPRequestHandler
 	    resp.setStatus(HTTPResponse::HTTP_OK);
 
 	    vector<string> v;
+	    v.clear();
 	    URI u = URI(req.getURI());
 	    u.getPathSegments(v);
 
