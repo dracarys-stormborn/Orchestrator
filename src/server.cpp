@@ -154,30 +154,119 @@ void VirtualMachineRequestHandler::handleVMDestroyRequest(HTTPServerRequest &req
 
 void ResourceServiceRequestHandler::handlePMListRequest(HTTPServerRequest &req, HTTPServerResponse &resp)
 {
+    string result, array;
+    JSONContainer status;
+    JSONHandler js;
+
+    map<string, int> p = _pm.getList();
+    map<string, int>::iterator temp = p.end();
+
+    array = "[";
+    for(map<string, int>::iterator i = p.begin(); i != p.end(); i++)
+    {
+	array += to_string(i->second + 1);
+	if(i != (--temp))
+	    array += ", ";
+    }
+    array += "]";
+
+    status.push_back(vector<pair<string, string> >());
+    status[0].push_back(make_pair("Physical Machine IDs", array));
+    js.jsonify(result, status);
+
     ostream &out = resp.send();
-    out << "<h3> Number Of Resource Service related Requests : " << count << " </h3>" << endl;
-    out << "Physical Machine's List Request Processed" << endl;
+    out << result;
+    out.flush();
 }
 
 void ResourceServiceRequestHandler::handleVMListRequest(HTTPServerRequest &req, HTTPServerResponse &resp)
 {
+    QueryParameters q;
+    string result, array;
+    JSONContainer status;
+    JSONHandler js;
+
+    URI u = URI(req.getURI());
+    q = u.getQueryParameters();
+    map<string, set<int> > p = _pm.getVMList();
+    map<int, string> pr = _pm.getRevList();
+    string pm = pr[stoi(q[0].second) - 1];
+    set<int> vm = p[pm];
+    set<int>::iterator it;
+    set<int>::iterator temp = vm.end();
+
+    array = "[";
+    for(set<int>::iterator i = vm.begin(); i != vm.end(); i++)
+    {
+	array += to_string(*i);
+	if(i != (--temp))
+	    array += ", ";
+    }
+    array += "]";
+
+    status.push_back(vector<pair<string, string> >());
+    status[0].push_back(make_pair("Virtual Machine IDs which are running on queried Physical Machine", array));
+    js.jsonify(result, status);
+
     ostream &out = resp.send();
-    out << "<h3> Number Of Resource Service related Requests : " << count << " </h3>" << endl;
-    out << "Virtual Machine's List Request Processed" << endl;
+    out << result;
+    out.flush();
 }
 
 void ResourceServiceRequestHandler::handlePMQueryRequest(HTTPServerRequest &req, HTTPServerResponse &resp)
 {
+    QueryParameters q;
+    string result;
+    int pid;
+    bool done = false;
+
+    URI u = URI(req.getURI());
+    q = u.getQueryParameters();
+    pid = stoi(q[0].second);
     ostream &out = resp.send();
-    out << "<h3> Number Of Resource Service related Requests : " << count << " </h3>" << endl;
-    out << "Physical Machine Query Request Processed" << endl;
+    done = _pm.queryPhysicalMachine(pid, result);
+    if(done)
+	out << result;
+    else
+    {
+	out << "{\n";
+	out << "\"status\" : Enter a valid Physical Machine ID\n";
+	out << "}";
+    }
+    out.flush();
 }
 
 void ImageServiceRequestHandler::handleImageListRequest(HTTPServerRequest &req, HTTPServerResponse &resp)
 {
+    string result, array;
+    JSONContainer status;
+    JSONHandler js;
+    vector<string> images;
+
+    images = _os.getImageList();
+    array = "[\n";
+    for(int i = 0; i < images.size(); i++)
+    {
+	string temp;
+	status.push_back(vector<pair<string, string> >());
+	status[0].push_back(make_pair("id", to_string(i + 100)));
+	status[0].push_back(make_pair("name", images[i]));
+	js.jsonify(temp, status);
+	if(i != images.size() - 1)
+	    array += temp + ",\n";
+	else
+	    array += temp;
+	status.clear();
+    }
+    array += "\n]";
+
+    status.push_back(vector<pair<string, string> >());
+    status[0].push_back(make_pair("images", array));
+    js.jsonify(result, status);
+
     ostream &out = resp.send();
-    out << "<h3> Number Of Image Service related Requests : " << count << " </h3>" << endl;
-    out << "Image List Request Processed" << endl;
+    out << result;
+    out.flush();
 }
 
 class MyRequestHandlerFactory : public HTTPRequestHandlerFactory

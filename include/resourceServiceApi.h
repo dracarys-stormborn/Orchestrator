@@ -39,13 +39,15 @@ class PhysicalMachineFactory
 	PMList getPhysicalMachineList() const;
 	map<string, int> getList() const;
 	map<int, string> getRevList() const;
-	map<string, vector<int> > getVMList() const;
+	map<string, set<int> > getVMList() const;
 	void addVM(string pm, const int id);
+	void removeVM(const int pid, const int vid);
+	bool queryPhysicalMachine(const int pid, string &result);
 
     private:
 	map<string, int> p;
 	map<int, string> pRev;
-	map<string, vector<int> > vms;
+	map<string, set<int> > vms;
 	PMList pms;
 };
 

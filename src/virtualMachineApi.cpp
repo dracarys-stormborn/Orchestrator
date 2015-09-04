@@ -95,6 +95,7 @@ int VirtualMachineFactory::createVirtualMachine(string name, const int &type, ma
     VirtualMachine vm = VirtualMachine(name, type);
     VM V = typesOfVMs[vm.getType() - 1];
 
+    srand(time(NULL));
     gen = rand() % 137;
     while(allocedIds.find(gen) != allocedIds.end())
 	gen = (gen + 1) % 137;
@@ -175,6 +176,8 @@ bool VirtualMachineFactory::destroyVirtualMachine(const int id)
 	if(ret == -1)
 	    return false;
 	virDomainUndefine(dom);
+	cout << "Removing VM with id : " << id << " and index : " << idMap[id] << endl;
+	_pm.removeVM(v[idMap[id]].getpmid(), id);
 	v.erase(v.begin() + idMap[id]);
 	allocedIds.erase(id);
     }
@@ -227,7 +230,6 @@ void VirtualMachineFactory::getVirtualMachineTypes(string &result)
 	nameValue[i].push_back(make_pair("disk", to_string(typesOfVMs[i].disk)));
     }
     js.jsonify(result, nameValue);
-    cout << result << endl;
 }
 
 void VirtualMachineFactory::loadFlavourFile(string file)

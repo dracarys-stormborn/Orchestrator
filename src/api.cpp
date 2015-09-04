@@ -15,7 +15,6 @@ int Scheduler::markedPM = 0;
 
 string Scheduler::getPhysicalMachineAddress(int _cpu, int _ram, int _disk)
 {
-    return "dracarys983@localhost";
     System s;
     string result, cmd;
     int cpu, ram, disk;
@@ -51,6 +50,7 @@ string System::exec(const char* cmd) const
 	    result += buffer;
     }
     pclose(pipe);
+    result.pop_back();
     return result;
 }
 
@@ -69,7 +69,7 @@ void JSONHandler::jsonify(string &out, JSONContainer nameValuePair)
 	if(i != len - 1)
 	    ss << "},\n";
 	else
-	    ss << "}\n";
+	    ss << "}";
     }
     out = ss.str();
 }

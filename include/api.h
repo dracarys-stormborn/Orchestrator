@@ -36,8 +36,12 @@ class System
 	string exec(const char* cmd) const;
 
     public:
-	string freeRAMInfo = " free -k | grep 'Mem:' | awk '{ print $4 }'";
-	string freeCPUInfo = " grep processor /proc/cpuinfo | wc -l";
+	string diskInfo = "  df -k --total | grep total | awk '{ print $2 }'";
+	string cpuInfo = "  grep processor /proc/cpuinfo | wc -l";
+	string ramInfo = "  free -k | grep 'Mem:' | awk '{ print $2 }'";
+	string freeDISKInfo = "  df -k --total | grep total | awk '{ print $4 }'";
+	string freeRAMInfo = "  free -k | grep 'Mem:' | awk '{ print $4 }'";
+	string freeCPUInfo = "  grep processor /proc/cpuinfo | wc -l";
 	string SSH = "ssh";
 };
 
@@ -47,7 +51,7 @@ class JSONHandler
     public:
 	JSONHandler() {}
 
-	void jsonify(string &out, vector<vector<pair<string, string> > > nameValuePair);
+	void jsonify(string &out, JSONContainer nameValuePair);
 };
 
 class XMLHandler

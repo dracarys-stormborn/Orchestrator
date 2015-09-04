@@ -5,6 +5,7 @@
 #include <map>
 
 #include "resourceServiceApi.h"
+#include "api.h"
 
 using namespace std;
 
@@ -53,7 +54,7 @@ int PhysicalMachine::getId() const
     return pmid;
 }
 
-map<string, vector<int> > PhysicalMachineFactory::getVMList() const
+map<string, set<int> > PhysicalMachineFactory::getVMList() const
 {
     return vms;
 }
@@ -92,5 +93,67 @@ map<int, string> PhysicalMachineFactory::getRevList() const
 
 void PhysicalMachineFactory::addVM(string pm, const int id)
 {
-    vms[pm].push_back(id);
+    set<int> &in = vms[pm];
+    in.insert(id);
+}
+
+void PhysicalMachineFactory::removeVM(const int pid, const int vid)
+{
+    set<int> &r = vms[pRev[pid]];
+    r.erase(vid);
+}
+
+bool PhysicalMachineFactory::queryPhysicalMachine(const int pid, string &result)
+{
+    if(pid > p.size())
+	return false;
+    System s;
+    JSONHandler js;
+    JSONContainer status;
+    string pm, r1, r2;
+    string cmd, out;
+    string cpu, ram, disk;
+    string freeCPU, freeRAM, freeDISK;
+
+    pm = pRev[pid - 1];
+    set<int> vm = vms[pm];
+    cmd = s.SSH + " " + pm + s.freeRAMInfo;
+    out = s.exec(cmd.c_str());
+    freeRAM = out;
+    cmd = s.SSH + " " + pm + s.freeCPUInfo;
+    out = s.exec(cmd.c_str());
+    freeCPU = out;
+    cmd = s.SSH + " " + pm + s.freeDISKInfo;
+    out = s.exec(cmd.c_str());
+    freeDISK = out;
+
+    cmd = s.SSH + " " + pm + s.ramInfo;
+    out = s.exec(cmd.c_str());
+    ram = out;
+    cmd = s.SSH + " " + pm + s.cpuInfo;
+    out = s.exec(cmd.c_str());
+    cpu = out;
+    cmd = s.SSH + " " + pm + s.diskInfo;
+    out = s.exec(cmd.c_str());
+    disk = out;
+
+    status.push_back(vector<pair<string, string> >());
+    status[0].push_back(make_pair("cpu", cpu));
+    status[0].push_back(make_pair("ram", ram));
+    status[0].push_back(make_pair("disk", disk));
+    js.jsonify(r1, status);
+    status.clear();
+    status.push_back(vector<pair<string, string> >());
+    status[0].push_back(make_pair("cpu", freeCPU));
+    status[0].push_back(make_pair("ram", freeRAM));
+    status[0].push_back(make_pair("disk", freeDISK));
+    js.jsonify(r2, status);
+    status.clear();
+    status.push_back(vector<pair<string, string> >());
+    status[0].push_back(make_pair("pmid", to_string(pid)));
+    status[0].push_back(make_pair("capacity", r1));
+    status[0].push_back(make_pair("free", r2));
+    status[0].push_back(make_pair("vms", to_string(vm.size())));
+    js.jsonify(result, status);
+    return true;
 }
